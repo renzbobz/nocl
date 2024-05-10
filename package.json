@@ -1,9 +1,9 @@
 {
   "name": "nocol",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "styled nodejs console logger",
   "type": "module",
-  "main": "index.js",
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
