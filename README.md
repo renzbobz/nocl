@@ -11,7 +11,7 @@ npm i nocl
 ## Usage
 
 ```js
-import nocl, { Nocl } from "nocl";
+import nocl, { Nocl } from "nocol";
 
 nocl.log("Hello world!");
 ```
