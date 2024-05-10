@@ -12,6 +12,14 @@
     "build": "tsc && dts-bundle-generator src/index.ts -o lib/index.d.ts",
     "test": "node --test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/renzbobz/nocl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/renzbobz/nocl/issues"
+  },
+  "homepage": "https://github.com/renzbobz/nocl#readme",
   "keywords": [
     "node",
     "nodejs",
