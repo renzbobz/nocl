@@ -5,7 +5,7 @@ Styled nodejs console logger
 ## Installation
 
 ```
-npm i nocl
+npm i nocol
 ```
 
 ## Usage
