@@ -1,5 +1,7 @@
 import nocl, { Nocl } from "../lib/index.js";
 
+nocl.startSession(import.meta.dirname + "/nocl.log");
+
 nocl.log("nocl.log");
 nocl.info("nocl.info");
 nocl.success("nocl.success");
@@ -70,3 +72,7 @@ console.log("----------------------------------------------------");
 nocl.log("{yellow without using chalk template}");
 nocl.useChalkTemplate = true;
 nocl.log("{yellow using chalk template}");
+
+console.log("----------------------------------------------------");
+
+nocl.endSession();

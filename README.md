@@ -147,10 +147,27 @@ nocl.log("{yellow using chalk template}");
 
 ![useChalkTemplate](https://github.com/renzbobz/nocl/blob/main/examples/useChalkTemplate.png?raw=true)
 
+### Using session log
+
+```js
+nocl.startSession(filepath, options); // createWriteStream
+nocl.log("hello");
+nocl.endSession();
+```
+
+![sessionLogs](https://github.com/renzbobz/nocl/blob/main/examples/session-logs.png?raw=true)
+
 ---
 
 Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 
 ## TODO
 
-- [ ] session logging
+- [x] session logging
+
+## Changelog
+
+- 1.1.0
+  - added session logging
+- 1.0.2
+  - stable version

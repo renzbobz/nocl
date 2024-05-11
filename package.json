@@ -1,6 +1,6 @@
 {
   "name": "nocol",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "styled nodejs console logger",
   "type": "module",
   "main": "lib/index.js",
@@ -33,10 +33,12 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.12.10",
+    "dts-bundle-generator": "^9.5.1",
     "typescript": "^5.4.5"
   },
   "dependencies": {
     "chalk": "^4.1.2",
+    "strip-ansi": "^7.1.0",
     "ts-deepmerge": "^7.0.0"
   }
 }

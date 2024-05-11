@@ -1,5 +1,7 @@
+import { WriteStream, createWriteStream } from "node:fs";
 import chalk from "chalk";
 import { merge } from "ts-deepmerge";
+import stripAnsi from "strip-ansi";
 import type { Theme, Option, ThemeOptName, ThemeOptObject, ThemeOpt } from "./types";
 
 const defaultTheme: Theme = {
@@ -54,6 +56,8 @@ export default class Nocl implements Option {
   encloseSymbol;
   useChalkTemplate;
   #theme;
+  #sessionWS?: WriteStream;
+  #sessionMsgs: string[] = [];
 
   constructor(opts: Option = {}) {
     this.symbolPrefix = opts.symbolPrefix;
@@ -94,7 +98,7 @@ export default class Nocl implements Option {
     }
   }
 
-  #colorMsgs(msgs: string[], color: string) {
+  #colorMsgs(msgs: any[], color: string) {
     for (const index in msgs) {
       const msg = msgs[index];
       if (typeof msg == "string") {
@@ -111,6 +115,26 @@ export default class Nocl implements Option {
     return symbol;
   }
 
+  #logSession(coloredMsgs: any[]) {
+    const ws = this.#sessionWS!;
+    const message = coloredMsgs.map(stripAnsi).join(" ");
+    const date = new Date();
+    const timestamp =
+      date.toLocaleTimeString(undefined, { hour12: false }) + "." + date.getMilliseconds();
+    this.#sessionMsgs.push(timestamp + " " + message);
+    const writeMsgs = () => {
+      for (const msg of this.#sessionMsgs) {
+        if (ws.write(msg + "\n")) {
+          this.#sessionMsgs.shift();
+        } else {
+          ws.once("drain", writeMsgs);
+          break;
+        }
+      }
+    };
+    writeMsgs();
+  }
+
   #log({ theme, msgs }: { theme: ThemeOptObject; msgs: any[] }) {
     const coloredMsgs = this.#colorMsgs(msgs, theme.color);
     const coloredSymbol = this.#getSymbol(theme);
@@ -119,6 +143,7 @@ export default class Nocl implements Option {
     const symbols = [coloredSymbolPrefix, coloredSymbol, coloredSymbolPostfix].filter((v) => v);
     const prefix = symbols.join(this.encloseSymbol ? "" : "|");
     if (prefix) coloredMsgs.unshift(prefix);
+    if (this.#sessionWS) this.#logSession(coloredMsgs);
     console.log(...coloredMsgs);
   }
 
@@ -161,5 +186,17 @@ export default class Nocl implements Option {
     const theme = this.#getThemeOpt("ts");
     theme.symbol = new Date().toLocaleString(theme.locales, theme.options);
     this.#log({ theme, msgs });
+  }
+
+  startSession(filepath: string, options?: any) {
+    if (!filepath) throw new Error("filepath required");
+    const ws = createWriteStream(filepath, options);
+    ws.once("finish", () => ws.close());
+    this.#sessionWS = ws;
+  }
+
+  endSession() {
+    this.#sessionWS?.end();
+    this.#sessionWS = undefined;
   }
 }
