@@ -117,7 +117,11 @@ export default class Nocl implements Option {
 
   #logSession(coloredMsgs: any[]) {
     const ws = this.#sessionWS!;
-    const message = coloredMsgs.map(stripAnsi).join(" ");
+    const message = coloredMsgs
+      .map((msg) =>
+        stripAnsi(typeof msg == "object" ? JSON.stringify(msg) : msg?.toString?.() || "")
+      )
+      .join(" ");
     const date = new Date();
     const timestamp =
       date.toLocaleTimeString(undefined, { hour12: false }) + "." + date.getMilliseconds();
