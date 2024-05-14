@@ -9,6 +9,7 @@ nocl.error("nocl.error");
 nocl.warning("nocl.warning");
 nocl.plus("nocl.plus");
 nocl.minus("nocl.minus");
+nocl.comment("nocl.comment");
 nocl.ts("nocl.ts");
 
 console.log("----------------------------------------------------");

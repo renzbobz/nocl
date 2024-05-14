@@ -48,6 +48,11 @@ const defaultTheme: Theme = {
     symbol: "-",
     symbolColor: "red",
   },
+  comment: {
+    color: "gray",
+    symbol: "#",
+    symbolColor: "gray",
+  },
 };
 
 export default class Nocl implements Option {
@@ -189,6 +194,11 @@ export default class Nocl implements Option {
   ts(...msgs: any[]) {
     const theme = this.#getThemeOpt("ts");
     theme.symbol = new Date().toLocaleString(theme.locales, theme.options);
+    this.#log({ theme, msgs });
+  }
+
+  comment(...msgs: any[]) {
+    const theme = this.#getThemeOpt("comment");
     this.#log({ theme, msgs });
   }
 

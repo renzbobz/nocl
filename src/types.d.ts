@@ -22,6 +22,7 @@ export interface Theme {
   plus: ThemeOpt;
   minus: ThemeOpt;
   ts: ThemeOptTS;
+  comment: ThemeOpt;
 }
 
 export interface Option {

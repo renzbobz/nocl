@@ -49,6 +49,7 @@ You can also modify the properties directly to change the styling without creati
 | ts      | #b6b5b5 | {curr_timestamp} | #636363     |
 | plus    | green   | +                | green       |
 | minus   | red     | -                | red         |
+| comment | gray    | #                | gray        |
 
 _For color or symbolColor value, you can pass hex color or chalk ForegroundColor_
 
@@ -167,6 +168,10 @@ Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 
 ## Changelog
 
+- 1.1.2
+  - added new theme "comment"
+- 1.1.1
+  - added object support for session log
 - 1.1.0
   - added session logging
 - 1.0.2
