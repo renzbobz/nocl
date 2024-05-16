@@ -168,6 +168,8 @@ Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 
 ## Changelog
 
+- 1.1.3
+  - fixed chalk template
 - 1.1.2
   - added new theme "comment"
 - 1.1.1

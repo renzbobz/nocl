@@ -1,5 +1,6 @@
 import { WriteStream, createWriteStream } from "node:fs";
 import chalk from "chalk";
+import { template as chalkTemplate } from "chalk-template";
 import { merge } from "ts-deepmerge";
 import stripAnsi from "strip-ansi";
 import type { Theme, Option, ThemeOptName, ThemeOptObject, ThemeOpt } from "./types";
@@ -91,11 +92,8 @@ export default class Nocl implements Option {
     try {
       if (!this.useChalkTemplate) throw 1;
       // this will throw an error if failed to color text with template
-      let _text = /^{.*}$/.test(text) ? text : `{${color} ${text}}`;
-      let args = [_text] as { [key: string]: any };
-      args.raw = [_text];
-      _text = chalk(args);
-      return _text;
+      let _text = `{${color} ${text}}`;
+      return chalkTemplate(_text);
     } catch (err) {
       // failed to color text fallback
       let _text = color.startsWith("#") ? chalk.hex(color)(text) : chalk.keyword(color)(text);
