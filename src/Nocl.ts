@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { template as chalkTemplate } from "chalk-template";
 import { merge } from "ts-deepmerge";
 import stripAnsi from "strip-ansi";
+import JSONStringifySafe from "json-stringify-safe";
 import type { Theme, Option, ThemeOptName, ThemeOptObject, ThemeOpt } from "./types";
 
 const defaultTheme: Theme = {
@@ -77,7 +78,7 @@ export default class Nocl implements Option {
     return this.#theme;
   }
 
-  set theme(value) {
+  set theme(value: Theme) {
     this.#theme = merge(this.#theme, value);
   }
 
@@ -122,7 +123,7 @@ export default class Nocl implements Option {
     const ws = this.#sessionWS!;
     const message = coloredMsgs
       .map((msg) =>
-        stripAnsi(typeof msg == "object" ? JSON.stringify(msg) : msg?.toString?.() || "")
+        stripAnsi(typeof msg == "object" ? JSONStringifySafe(msg) : msg?.toString?.() || "")
       )
       .join(" ");
     const date = new Date();

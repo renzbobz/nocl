@@ -167,7 +167,8 @@ Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 - [x] session logging
 
 ## Changelog
-
+- 1.1.4
+  - fixed circular json error on session log
 - 1.1.3
   - fixed chalk template
 - 1.1.2

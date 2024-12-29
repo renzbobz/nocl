@@ -76,4 +76,10 @@ nocl.log("{yellow using chalk template}");
 
 console.log("----------------------------------------------------");
 
+const data = { a: 1 };
+data.b = data;
+nocl.log(data);
+
+console.log("----------------------------------------------------");
+
 nocl.endSession();

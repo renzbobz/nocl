@@ -32,6 +32,7 @@
   "author": "renzbobz",
   "license": "ISC",
   "devDependencies": {
+    "@types/json-stringify-safe": "^5.0.3",
     "@types/node": "^20.12.10",
     "dts-bundle-generator": "^9.5.1",
     "typescript": "^5.4.5"
@@ -39,6 +40,7 @@
   "dependencies": {
     "chalk": "^4.0.0",
     "chalk-template": "^1.1.0",
+    "json-stringify-safe": "^5.0.1",
     "strip-ansi": "^7.1.0",
     "ts-deepmerge": "^7.0.0"
   }
