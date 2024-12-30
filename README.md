@@ -167,6 +167,11 @@ Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 - [x] session logging
 
 ## Changelog
+- 2.0.0
+  - added clone, group, groupEnd, and nl methods
+  - fixed theme setter typings
+  - now using stdout for session logging
+  - improvements
 - 1.1.4
   - fixed circular json error on session log
 - 1.1.3

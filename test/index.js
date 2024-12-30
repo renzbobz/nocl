@@ -82,4 +82,27 @@ nocl.log(data);
 
 console.log("----------------------------------------------------");
 
+const n = new Nocl({ useChalkTemplate: true });
+n.group("ms:");
+n.log("a");
+n.group("{yellow members3:}");
+n.log("b");
+n.groupEnd();
+n.log("c");
+n.groupEnd();
+n.log("d");
+
+n.nl();
+
+console.log("----------------------------------------------------");
+
+n.log("{red n}");
+const n2 = nocl.clone();
+n2.useChalkTemplate = false;
+n2.log("{red n2}");
+
+nocl.log("{red nocl}");
+
+console.log("----------------------------------------------------");
+
 nocl.endSession();

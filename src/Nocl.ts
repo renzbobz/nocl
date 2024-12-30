@@ -62,8 +62,11 @@ export default class Nocl implements Option {
   symbolPostfix;
   encloseSymbol;
   useChalkTemplate;
+  sessionWS?: WriteStream;
+  indentation;
+  stdout;
+  #originalStdoutWrite;
   #theme;
-  #sessionWS?: WriteStream;
   #sessionMsgs: string[] = [];
 
   constructor(opts: Option = {}) {
@@ -71,6 +74,10 @@ export default class Nocl implements Option {
     this.symbolPostfix = opts.symbolPostfix;
     this.encloseSymbol = opts.encloseSymbol ?? true;
     this.useChalkTemplate = opts.useChalkTemplate ?? false;
+    this.indentation = opts.indentation ?? 0;
+    this.sessionWS = opts.sessionWS;
+    this.stdout = opts.stdout ?? process.stdout;
+    this.#originalStdoutWrite = this.stdout.write.bind(this.stdout);
     this.#theme = merge(defaultTheme, opts.theme || {});
   }
 
@@ -78,7 +85,7 @@ export default class Nocl implements Option {
     return this.#theme;
   }
 
-  set theme(value: Theme) {
+  set theme(value: Partial<Theme>) {
     this.#theme = merge(this.#theme, value);
   }
 
@@ -120,7 +127,7 @@ export default class Nocl implements Option {
   }
 
   #logSession(coloredMsgs: any[]) {
-    const ws = this.#sessionWS!;
+    const ws = this.sessionWS!;
     const message = coloredMsgs
       .map((msg) =>
         stripAnsi(typeof msg == "object" ? JSONStringifySafe(msg) : msg?.toString?.() || "")
@@ -132,7 +139,7 @@ export default class Nocl implements Option {
     this.#sessionMsgs.push(timestamp + " " + message);
     const writeMsgs = () => {
       for (const msg of this.#sessionMsgs) {
-        if (ws.write(msg + "\n")) {
+        if (ws.write(msg)) {
           this.#sessionMsgs.shift();
         } else {
           ws.once("drain", writeMsgs);
@@ -151,7 +158,7 @@ export default class Nocl implements Option {
     const symbols = [coloredSymbolPrefix, coloredSymbol, coloredSymbolPostfix].filter((v) => v);
     const prefix = symbols.join(this.encloseSymbol ? "" : "|");
     if (prefix) coloredMsgs.unshift(prefix);
-    if (this.#sessionWS) this.#logSession(coloredMsgs);
+    if (this.indentation > 0) coloredMsgs[0] = "  ".repeat(this.indentation) + coloredMsgs[0];
     console.log(...coloredMsgs);
   }
 
@@ -205,11 +212,50 @@ export default class Nocl implements Option {
     if (!filepath) throw new Error("filepath required");
     const ws = createWriteStream(filepath, options);
     ws.once("finish", () => ws.close());
-    this.#sessionWS = ws;
+    this.sessionWS = ws;
+
+    this.stdout.write = (chunk, ...args) => {
+      if (typeof chunk === "string" && this.sessionWS) {
+        this.#logSession([chunk.toString()]);
+      }
+      return this.#originalStdoutWrite(chunk, ...args as any);
+    };
   }
 
+
   endSession() {
-    this.#sessionWS?.end();
-    this.#sessionWS = undefined;
+    this.sessionWS?.end();
+    this.sessionWS = undefined;
+    this.stdout.write = this.#originalStdoutWrite;
+  }
+
+  group(...msgs: any[]) {
+    this.log(...msgs);
+    this.indentation++;
+  }
+
+  groupEnd() {
+    this.indentation--;
+  }
+
+  /** log new line */
+  nl() {
+    this.log("");
+  }
+
+  /** new instance with same settings */
+  clone(opts: Option = {}) {
+    return new Nocl(merge(
+      { 
+        sessionWS: this.sessionWS, 
+        theme: this.#theme, 
+        indentation: this.indentation, 
+        useChalkTemplate: this.useChalkTemplate,
+        encloseSymbol: this.encloseSymbol,
+        symbolPostfix: this.symbolPostfix,
+        symbolPrefix: this.symbolPrefix
+      },
+      opts
+    ));
   }
 }

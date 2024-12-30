@@ -1,3 +1,5 @@
+import { WriteStream } from "node:fs";
+
 export type ThemeOpt = {
   color: string;
   symbol?: string;
@@ -14,15 +16,15 @@ export type ThemeOptObject = ThemeOpt & ThemeOptTS;
 export type ThemeOptName = keyof Theme;
 
 export interface Theme {
-  log: ThemeOpt;
-  info: ThemeOpt;
-  warning: ThemeOpt;
-  error: ThemeOpt;
-  success: ThemeOpt;
-  plus: ThemeOpt;
-  minus: ThemeOpt;
-  ts: ThemeOptTS;
-  comment: ThemeOpt;
+  log?: ThemeOpt;
+  info?: ThemeOpt;
+  warning?: ThemeOpt;
+  error?: ThemeOpt;
+  success?: ThemeOpt;
+  plus?: ThemeOpt;
+  minus?: ThemeOpt;
+  ts?: ThemeOptTS;
+  comment?: ThemeOpt;
 }
 
 export interface Option {
@@ -31,8 +33,11 @@ export interface Option {
   symbolPrefix?: Omit<ThemeOpt, "color">;
   /** Symbol to be append to theme's symbol */
   symbolPostfix?: Omit<ThemeOpt, "color">;
-  /** Enclose symbol with square brackets */
+  /** Enclose symbol with square brackets (default: true) */
   encloseSymbol?: boolean;
-  /** Color text with chalk template */
+  /** Color text with chalk template (default: false) */
   useChalkTemplate?: boolean;
+  sessionWS?: WriteStream;
+  indentation?: number;
+  stdout?: NodeJS.WriteStream;
 }
