@@ -54,14 +54,16 @@ const defaultTheme: Theme = {
     color: "gray",
     symbol: "#",
     symbolColor: "gray",
-  },
+  }
 };
 
 export default class Nocl implements Option {
   symbolPrefix;
   symbolPostfix;
   encloseSymbol;
+  encloseSymbolColor;
   useChalkTemplate;
+  noSymbol;
   sessionWS?: WriteStream;
   indentation;
   stdout;
@@ -73,7 +75,9 @@ export default class Nocl implements Option {
     this.symbolPrefix = opts.symbolPrefix;
     this.symbolPostfix = opts.symbolPostfix;
     this.encloseSymbol = opts.encloseSymbol ?? true;
+    this.encloseSymbolColor = opts.encloseSymbolColor;
     this.useChalkTemplate = opts.useChalkTemplate ?? false;
+    this.noSymbol = opts.noSymbol ?? false;
     this.indentation = opts.indentation ?? 0;
     this.sessionWS = opts.sessionWS;
     this.stdout = opts.stdout ?? process.stdout;
@@ -119,24 +123,37 @@ export default class Nocl implements Option {
     return msgs;
   }
 
-  #getSymbol({ color, symbol, symbolColor }: ThemeOpt) {
-    if (!symbol) return;
-    if (this.encloseSymbol) symbol = `[${symbol}]`;
-    symbol = this.#colorText(symbol, symbolColor || color);
+  #colorEncloseSymbol(symbol: string, color?: string, defaultClr?: string) {
+    const esClr = color || this.encloseSymbolColor || defaultClr;
+    return esClr ? this.#colorText(symbol, esClr) : symbol;
+  }
+
+  #getSymbol({ color, symbol, symbolColor, encloseSymbolColor, noSymbol }: ThemeOpt) {
+    if (!symbol || noSymbol || this.noSymbol) return;
+    symbolColor ||= color || defaultTheme.log!.color!;
+    if (this.encloseSymbol) {
+      const clrEs = (s: string) => this.#colorEncloseSymbol(s, encloseSymbolColor, symbolColor);
+      symbol = clrEs("[") + symbol + clrEs("]");
+    }
+    symbol = this.#colorText(symbol, symbolColor);
     return symbol;
   }
 
   #logSession(coloredMsgs: any[]) {
     const ws = this.sessionWS!;
+
     const message = coloredMsgs
       .map((msg) =>
         stripAnsi(typeof msg == "object" ? JSONStringifySafe(msg) : msg?.toString?.() || "")
       )
       .join(" ");
+
     const date = new Date();
     const timestamp =
       date.toLocaleTimeString(undefined, { hour12: false }) + "." + date.getMilliseconds();
+
     this.#sessionMsgs.push(timestamp + " " + message);
+
     const writeMsgs = () => {
       for (const msg of this.#sessionMsgs) {
         if (ws.write(msg)) {
@@ -150,16 +167,33 @@ export default class Nocl implements Option {
     writeMsgs();
   }
 
-  #log({ theme, msgs }: { theme: ThemeOptObject; msgs: any[] }) {
-    const coloredMsgs = this.#colorMsgs(msgs, theme.color);
+  #log({ theme, msgs, noSymbols }: { theme: ThemeOptObject; msgs: any[], noSymbols?: boolean }) {
+    const coloredMsgs = this.#colorMsgs(msgs, theme.color || defaultTheme.log!.color!);
     const coloredSymbol = this.#getSymbol(theme);
-    const coloredSymbolPrefix = this.#getSymbol({ color: "gray", ...(this.symbolPrefix || {}) });
-    const coloredSymbolPostfix = this.#getSymbol({ color: "gray", ...(this.symbolPostfix || {}) });
+
+    const symbolPrefixValue = typeof this.symbolPrefix === "function" ? this.symbolPrefix(theme) : this.symbolPrefix || {};
+    const symbolPostfixValue = typeof this.symbolPostfix === "function" ? this.symbolPostfix(theme) : this.symbolPostfix || {};
+
+    const coloredSymbolPrefix = this.#getSymbol({ color: "gray", ...symbolPrefixValue });
+    const coloredSymbolPostfix = this.#getSymbol({ color: "gray", ...symbolPostfixValue });
+
     const symbols = [coloredSymbolPrefix, coloredSymbol, coloredSymbolPostfix].filter((v) => v);
-    const prefix = symbols.join(this.encloseSymbol ? "" : "|");
-    if (prefix) coloredMsgs.unshift(prefix);
+
+    const prefix = symbols.join(this.encloseSymbol ? "" : this.#colorEncloseSymbol("|", theme.encloseSymbolColor));
+
+    if (prefix && !noSymbols) coloredMsgs.unshift(prefix);
+
     if (this.indentation > 0) coloredMsgs[0] = "  ".repeat(this.indentation) + coloredMsgs[0];
+
     console.log(...coloredMsgs);
+  }
+
+  #logNoSymbols(...msgs: any[]) {
+    this.#log({
+      msgs,
+      theme: {},
+      noSymbols: true
+    });
   }
 
   log(...msgs: any[]) {
@@ -210,6 +244,7 @@ export default class Nocl implements Option {
 
   startSession(filepath: string, options?: any) {
     if (!filepath) throw new Error("filepath required");
+
     const ws = createWriteStream(filepath, options);
     ws.once("finish", () => ws.close());
     this.sessionWS = ws;
@@ -239,8 +274,28 @@ export default class Nocl implements Option {
   }
 
   /** log new line */
-  nl() {
-    this.log("");
+  nl(x = 1) {
+    this.#logNoSymbols(...Array.from({ length: x-1 }).fill("\n"));
+  }
+
+  line({ color = "gray", symbol = "-", label = "", align = "left" }: { color?: string, symbol?: string, label?: string, align?: "left" | "center" | "right" } = {}) {
+    const cols = this.stdout.columns;
+    let pL = 0, pR = 0;
+    if (label) {
+      const labelLen = stripAnsi(this.#colorText(label, color)).length;
+      switch (align) {
+        case "center": pL = pR = cols / 2 - labelLen / 2; break;
+        case "left": 
+          pL = 4;
+          pR = cols - labelLen - pL; break;
+        case "right":
+          pR = 4;
+          pL = cols - labelLen - pR; break;
+      }
+    } else {
+      pL = pR = cols / 2;
+    }
+    this.#logNoSymbols(`{${color} ${symbol.repeat(pL)}${label}${symbol.repeat(pR)}}`);
   }
 
   /** new instance with same settings */
@@ -252,8 +307,10 @@ export default class Nocl implements Option {
         indentation: this.indentation, 
         useChalkTemplate: this.useChalkTemplate,
         encloseSymbol: this.encloseSymbol,
+        encloseSymbolColor: this.encloseSymbolColor,
         symbolPostfix: this.symbolPostfix,
-        symbolPrefix: this.symbolPrefix
+        symbolPrefix: this.symbolPrefix,
+        noSymbol: this.noSymbol
       },
       opts
     ));

@@ -1,9 +1,11 @@
 import { WriteStream } from "node:fs";
 
 export type ThemeOpt = {
-  color: string;
+  color?: string;
   symbol?: string;
   symbolColor?: string;
+  noSymbol?: boolean;
+  encloseSymbolColor?: string;
 };
 
 export type ThemeOptTS = ThemeOpt & {
@@ -27,12 +29,14 @@ export interface Theme {
   comment?: ThemeOpt;
 }
 
+type SymbolFixType = ThemeOpt | ((theme: ThemeOptObject) => SymbolFixType);
+
 export interface Option {
   theme?: Theme;
   /** Symbol to be prepend to theme's symbol */
-  symbolPrefix?: Omit<ThemeOpt, "color">;
+  symbolPrefix?: SymbolFixType;
   /** Symbol to be append to theme's symbol */
-  symbolPostfix?: Omit<ThemeOpt, "color">;
+  symbolPostfix?: SymbolFixType;
   /** Enclose symbol with square brackets (default: true) */
   encloseSymbol?: boolean;
   /** Color text with chalk template (default: false) */
@@ -40,4 +44,8 @@ export interface Option {
   sessionWS?: WriteStream;
   indentation?: number;
   stdout?: NodeJS.WriteStream;
+  /** default color for all enclose symbol */
+  encloseSymbolColor?: string;
+  /** disable symbol to all themes */
+  noSymbol?: boolean;
 }

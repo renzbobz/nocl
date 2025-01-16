@@ -130,6 +130,9 @@ nocl.log("with symbolPostfix");
 
 ```js
 nocl.info("with encloseSymbol");
+nocl.encloseSymbolColor = "blue";
+nocl.info("with encloseSymbolColor");
+nocl.encloseSymbolColor = null;
 nocl.encloseSymbol = false;
 nocl.info("without encloseSymbol");
 ```
@@ -147,6 +150,37 @@ nocl.log("{yellow using chalk template}");
 ```
 
 ![useChalkTemplate](https://github.com/renzbobz/nocl/blob/main/examples/useChalkTemplate.png?raw=true)
+
+### .line
+
+```js
+nocl.line();
+nocl.line({ color: "magenta", symbol: "~" });
+nocl.line({ label: "Left" });
+nocl.line({ label: "{white.inverse  Center }", align: "center" });
+nocl.line({ color: "green", symbol: "~", label: "Right", align: "right" });
+nocl.line({ symbol: " ", label: "{white.inverse  Center }", align: "center" });
+nocl.line({ symbol: " ", label: "{white.inverse  Left }", align: "left" });
+nocl.line({ symbol: " ", label: "{white.inverse  Right }", align: "right" });
+```
+
+![line](https://github.com/renzbobz/nocl/blob/main/examples/line.png?raw=true)
+
+### .group
+
+```js
+const n = new Nocl({ useChalkTemplate: true });
+n.group("ms:");
+n.log("a");
+n.group("{yellow members3:}");
+n.log("b");
+n.groupEnd();
+n.log("c");
+n.groupEnd();
+n.log("d");
+```
+
+![group](https://github.com/renzbobz/nocl/blob/main/examples/group.png?raw=true)
 
 ### Using session log
 
@@ -167,6 +201,9 @@ Check [tests](https://github.com/renzbobz/nocl/tree/main/test)
 - [x] session logging
 
 ## Changelog
+- 2.1.0
+  - added line method
+  - customization improvements
 - 2.0.0
   - added clone, group, groupEnd, and nl methods
   - fixed theme setter typings

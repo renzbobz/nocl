@@ -64,6 +64,9 @@ nocl.log("with symbolPostfix");
 console.log("----------------------------------------------------");
 
 nocl.info("with encloseSymbol");
+nocl.encloseSymbolColor = "blue";
+nocl.info("with encloseSymbolColor");
+nocl.encloseSymbolColor = null;
 nocl.encloseSymbol = false;
 nocl.info("without encloseSymbol");
 nocl.encloseSymbol = true;
@@ -92,7 +95,7 @@ n.log("c");
 n.groupEnd();
 n.log("d");
 
-n.nl();
+n.nl(2);
 
 console.log("----------------------------------------------------");
 
@@ -104,5 +107,14 @@ n2.log("{red n2}");
 nocl.log("{red nocl}");
 
 console.log("----------------------------------------------------");
+
+nocl.line();
+nocl.line({ color: "magenta", symbol: "~" });
+nocl.line({ label: "Left" });
+nocl.line({ label: "{white.inverse  Center }", align: "center" });
+nocl.line({ color: "green", symbol: "~", label: "Right", align: "right" });
+nocl.line({ symbol: " ", label: "{white.inverse  Center }", align: "center" });
+nocl.line({ symbol: " ", label: "{white.inverse  Left }", align: "left" });
+nocl.line({ symbol: " ", label: "{white.inverse  Right }", align: "right" });
 
 nocl.endSession();
